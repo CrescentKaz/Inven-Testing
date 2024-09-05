@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-// This is copied from "Poth on Programming" for me to play with and learn how to implement an inventory system in my own game. 
+/* This is a modified copy from "Poth on Programming" for me to play with and learn how to implement an inventory system in my own game. */ 
 
 <html>
   <head>
@@ -140,21 +140,15 @@ window.requestAnimationFrame(loop);
         buffer.drawImage(tile_set, player.sx, player.sy, player.w, player.h, Math.round(player.x), Math.round(player.y), player.w, player.h);
 
         var front_item_index = undefined;// Index of item at very front of screen 
+
          /* Draw the items */
         for (let index = items.length - 1; index > -1; -- index) {
-
           let item = items[index];
-
           if (item.y + item.h >= map_floor && item.collideRect(player) && pointer.down && item.collidePoint(pointer)) {
-              
             front_item_index = index;// store the frontmost item index
-
           }
-
           item.updatePosition(map_gravity, map_friction, map_floor);
-
           buffer.drawImage(tile_set, item.sx, item.sy, item.w, item.h, Math.round(item.x), Math.round(item.y), item.w, item.h);
-
         }
 
         // If there is an item selected, add it to the inventory
@@ -163,80 +157,54 @@ window.requestAnimationFrame(loop);
         /* Draw the inventory */
         buffer.fillStyle = inventory.color;
         buffer.fillRect(inventory.x, inventory.y, inventory.w, inventory.h);
-
         for (let index = inventory.items.length - 1; index > -1; -- index) {
-
           let item = inventory.items[index];
           let dest_x = inventory.x + index * tile_size * 2;
-            
           buffer.drawImage(tile_set, item.sx, item.sy, item.w, item.h, dest_x, inventory.y, tile_size * 2, tile_size * 2);
-
         }
 
         /* Draw to the display context */
         context.drawImage(buffer.canvas, 0, 0, buffer.canvas.width, buffer.canvas.height, 0, 0, context.canvas.width, context.canvas.height);
-
         pointer.down = false;
-
       }
 
       buffer.canvas.height = map_rows * tile_size;
       buffer.canvas.width  = map_columns * tile_size;
       buffer.imageSmoothingEnabled = false;
-
       tile_set.addEventListener("load", (event) => { loop(); });
       tile_set.src = "inventory.png";
 
       // IOS may not recognize click events on window or canvas elements.
       window.addEventListener("click", event => {
-
         var rect = context.canvas.getBoundingClientRect();
-
         pointer.x = (event.clientX - rect.left) / map_scale;
         pointer.y = (event.clientY - rect.top) / map_scale;
         pointer.down = true;
-
       });
 
       // touchend event handler should cover ios, but now we have two listeners active on Android...
       window.addEventListener("touchend", event => {
-
         var rect = context.canvas.getBoundingClientRect();
-
         pointer.x = (event.targetTouches[0].clientX - rect.left) / map_scale;
         pointer.y = (event.targetTouches[0].clientY - rect.top) / map_scale;
         pointer.down = true;
-
       });
 
       function resize(event) {
-
         screen_h = document.documentElement.clientHeight - 16;// Get screen height and width
         screen_w = document.documentElement.clientWidth - 16;
-        
         if (screen_w / screen_h < map_ratio) { // fit map to screen
-
             context.canvas.width = screen_w;
             context.canvas.height = screen_w / map_ratio;
-
         } else {
-
             context.canvas.width = screen_h * map_ratio;
             context.canvas.height = screen_h;
-
         }
-
         context.imageSmoothingEnabled = false;
-
         map_scale = context.canvas.height / (map_rows * tile_size);
-
       }
-
       window.addEventListener("resize", resize);
-
       resize();
-
     </script>
-
   </body>
 </html>
