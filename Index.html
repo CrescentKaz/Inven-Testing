@@ -1,122 +1,75 @@
 <!DOCTYPE html>
 // This is copied from "Poth on Programming" for me to play with and learn how to implement an inventory system in my own game. 
+
 <html>
-
   <head>
-
     <meta name = "viewport" content = "width=device-width">
-
     <style>
-
       * { margin:0; padding:0; }
-
       html, body { height:100%; width:100%; }
-
       body { background-color:#000000; display:grid; }
-
       canvas { align-self:center; justify-self:center; }
-
     </style>
-
     <title>Inventory</title>
-
   </head>
-
   <body>
-
     <canvas></canvas>
-
     <script type = "text/javascript">
 
       class Sprite {
-
+        
         constructor(x, y, sx, sy, w, h) {
-
-          this.x = x; this.y = y; this.sx = sx; this.sy = sy; this.w = w; this.h = h;
-
-          this.vx = this.vy = 0;
-
+          this.x = x; this.y = y; this.sx = sx; this.sy = sy; this.w = w; this.h = h; this.vx = this.vy = 0;
         }
 
         collidePoint(point) {
-
           if (point.x < this.x || point.x > this.x + this.w || point.y < this.y || point.y > this.y + this.h) return false;
-
           return true;
-
         }
 
         collideRect(sprite) {
-          
           if (this.x > sprite.x + sprite.w || this.x + this.w < sprite.x || this.y > sprite.y + sprite.h || this.y + this.h < sprite.y) return false;
-
           return true;
-              
         }
 
         updatePosition(gravity, friction, floor) {
-
           this.vy += gravity;
-
           this.x += this.vx;
           this.y += this.vy;
-
           this.vx *= friction;
           this.vy *= friction;
-
           if (this.y + this.h > floor) {
-
             this.y = floor - this.h;
             this.vy = 0;
-
           }
-
         }
-
       }
 
       class Inventory {
-
+        
         constructor(x, y, w, h) {
-
-          this.x = x; this.y = y; this.w = w; this.h = h;
-          this.color = "rgba(255, 255, 255, 0.5)";
-          this.items = new Array();
-          this.columns = 4;
-
+          this.x = x; this.y = y; this.w = w; this.h = h; this.color = "rgba(255, 255, 255, 0.5)"; this.items = new Array(); this.columns = 4;
         }
 
         addItem(sprite) {
-          
           if (this.items.length == this.columns) {
-
             sprite.vy = -4;
             return false;
-
           }
-
           this.items.push(sprite)
-
           return true;
-              
         }
 
         dropItem(index, x, y) {
-
           var item = this.items[index];
-
           if (item) {
-
             this.items.splice(index, 1);
             item.x = x;
             item.y = y - item.h;
             item.vx = Math.random() * 2 - 1;
             item.vy = Math.random() * -5 - 1;
-
           } return item;
-
         }
-
       }
 
       Inventory.prototype.collidePoint = Sprite.prototype.collidePoint;
@@ -145,10 +98,8 @@
 
       var context = document.querySelector("canvas").getContext("2d", { alpha: false });
       var buffer = document.createElement("canvas").getContext("2d", { alpha: false });
-
       var screen_h = document.documentElement.clientHeight - 16;
       var screen_w = document.documentElement.clientWidth - 16;
-
       var player = new Sprite(100, 100, 112, 16, 16, 32);
       var inventory = new Inventory(120, 8, 128, 32);
       var items = [new Sprite(Math.random() * 240, 100, 96, 16, tile_size, tile_size),
@@ -159,35 +110,26 @@
                    new Sprite(Math.random() * 240, 100, 64, 32, tile_size, tile_size),
                    new Sprite(Math.random() * 240, 100, 80, 32, tile_size, tile_size),
                    new Sprite(Math.random() * 240, 100, 96, 32, tile_size, tile_size)];
-
       var pointer = { x:100, y:0, down:false };
 
       function loop(time_step) {
-
-        window.requestAnimationFrame(loop);// perpetuate the loop
+window.requestAnimationFrame(loop);
+//perpetuate the loop
 
         // Click inventory
         if (pointer.down && inventory.items.length > 0 && inventory.collidePoint(pointer)) {
-          
           let index = Math.floor((pointer.x - inventory.x) / (inventory.w / inventory.columns));
-
           pointer.x = player.x + player.w * 0.5;
-
           let item = inventory.dropItem(index, player.x, player.y);
-
           if (item) items.unshift(item);
-
         }
 
         /* Draw the map */
         for (let index = map.length - 1; index > -1; -- index) {
-
           let value = map[index];
           let tile_x = (index % map_columns) * tile_size;
           let tile_y = Math.floor(index / map_columns) * tile_size;
-
           buffer.drawImage(tile_set, (value % 8) * tile_size, Math.floor(value / 8) * tile_size, tile_size, tile_size, tile_x, tile_y, tile_size, tile_size);
-
         }
 
         // update player
